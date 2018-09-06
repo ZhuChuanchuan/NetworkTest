@@ -13,6 +13,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     
     TextView responseText;
@@ -30,8 +34,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.send_request) {
-            sendRequestWithHttpURLConnection();
+            //原生android 实现网络请求
+            //sendRequestWithHttpURLConnection();
+
+            //同样的功能 用开源okhttp实现
+            sendRequestWithOkhttp();
         }
+    }
+
+    private void sendRequestWithOkhttp() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    OkHttpClient client=new OkHttpClient();
+                    Request request = new Request.Builder().url("http://sina.com").build();
+                    Response r=client.newCall(request).execute();
+                    String rData=r.body().string();
+                    showResponse(rData);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     private void sendRequestWithHttpURLConnection() {
