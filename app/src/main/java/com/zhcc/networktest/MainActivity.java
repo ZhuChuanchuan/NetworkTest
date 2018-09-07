@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xmlpull.v1.XmlPullParser;
@@ -56,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
                 try {
                     OkHttpClient client=new OkHttpClient();
-                    Request request = new Request.Builder().url("http://192.168.164.2/get_data.xml").build();
+                    Request request = new Request.Builder().url("http://192.168.164.2/get_data.json").build();
                     Response r=client.newCall(request).execute();
                     String rData=r.body().string();
 
@@ -66,13 +68,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     //parseXMLWithPull(rData);
 
                     //SAX解析xml
-                    parseXMLWithSAX(rData);
+                    //parseXMLWithSAX(rData);
+
+                    parseJSONWithJSONObject(rData);
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }).start();
+    }
+
+    private void parseJSONWithJSONObject(String jsonData) {
+        try {
+            JSONArray jsonArray = new JSONArray(jsonData);
+            for(int i=0;i<jsonArray.length();i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                String id = jsonObject.getString("id");
+                String name = jsonObject.getString("name");
+                String version = jsonObject.getString("version");
+                Log.d("main", "id is " + id);
+                Log.d("main", "name is " + name);
+                Log.d("main", "version is " + version);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void parseXMLWithSAX(String xmlData) {
