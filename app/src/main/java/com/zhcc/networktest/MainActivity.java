@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -16,6 +18,8 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import javax.xml.parsers.SAXParserFactory;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -55,13 +59,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Request request = new Request.Builder().url("http://192.168.164.2/get_data.xml").build();
                     Response r=client.newCall(request).execute();
                     String rData=r.body().string();
+
                     //showResponse(rData);
-                    parseXMLWithPull(rData);
+
+                    //PULL解析xml
+                    //parseXMLWithPull(rData);
+
+                    //SAX解析xml
+                    parseXMLWithSAX(rData);
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }).start();
+    }
+
+    private void parseXMLWithSAX(String xmlData) {
+        try {
+
+            SAXParserFactory factory= SAXParserFactory.newInstance();
+            XMLReader xmlReader=factory.newSAXParser().getXMLReader();
+            MyHandler myHandler=new MyHandler();
+            xmlReader.setContentHandler(myHandler); //myHandler实例设置到XMLRader中
+            xmlReader.parse(new InputSource(new StringReader(xmlData)));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void parseXMLWithPull(String xmlData) {
